@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+import urllib.request
+import json
 
 # --- SEITENKONFIGURATION ---
 st.set_page_config(
@@ -8,6 +10,25 @@ st.set_page_config(
     layout="wide", 
     initial_sidebar_state="expanded"
 )
+
+# --- LIVE WECHSELKURSE ---
+@st.cache_data(ttl=3600) # Cacht die Kurse für 1 Stunde
+def get_live_rates():
+    try:
+        url = "https://open.er-api.com/v6/latest/EUR"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode())
+            # API gibt Raten basierend auf 1 EUR zurück.
+            # Umrechnung: 1 USD in EUR = 1 / (USD pro EUR)
+            rate_usd_eur = 1 / data["rates"]["USD"]
+            rate_gbp_eur = 1 / data["rates"]["GBP"]
+            return rate_usd_eur, rate_gbp_eur, True
+    except Exception as e:
+        # Fallback Kurse, falls keine Internetverbindung
+        return 0.92, 1.17, False
+
+FX_RATE_USD_EUR, FX_RATE_GBP_EUR, rates_are_live = get_live_rates()
 
 # --- SPRACHSTEUERUNG (Zweisprachigkeit) ---
 col1, col2 = st.columns([8, 2])
@@ -25,6 +46,8 @@ T = {
     "DE": {
         "title": ":material/account_balance: Strategisches Multi-Währungs-Setup",
         "subtitle": "Dashboard zur Simulation der Stripe-Zahlungsströme, Wachstums-Szenarien und Rücktausch-Effekte.",
+        "live_rates": "🟢 Live-Wechselkurse aktiv",
+        "offline_rates": "🟡 Offline-Kurse (Fallback)",
         "sidebar_title": ":material/settings: Parameter",
         "market_us": "🇺🇸 US-Markt",
         "market_uk": "🇬🇧 UK-Markt",
@@ -61,7 +84,6 @@ T = {
         "insight_breakeven": "**Setup-Boost:** Durch die hohen Einrichtungsgebühren bei Neukunden ist das Volumen extrem schnell in profitablen Zonen.",
         "insight_annual": "**Jahres-Hebel:** Auf 12 Monate hochgerechnet schützt das Setup ca. **€ {annual:,.0f}** vor der FX-Erosion.",
         "flow_title": ":material/account_tree: Ziel-Infrastruktur (Datenfluss)",
-        "matrix_title": ":material/tune: Detail-Matrix der Anbieter",
         "scen_sq": "Status Quo (Sparkasse)",
         "scen_new": "Neues Setup ({provider})",
         "cat_base": "1. Basis-Processing",
@@ -70,11 +92,31 @@ T = {
         "cat_repat": "4. Provider FX (Rücktausch)",
         "rate_base": "Grundgebühr / Monat",
         "rate_transfer": "Lokale Überweisung (US/UK)",
-        "rate_fx": "FX-Aufschlag (Rücktausch)"
+        "rate_fx": "FX-Aufschlag (Rücktausch)",
+        
+        "vs_title": ":material/balance: Vor- und Nachteile der Anbieter",
+        "pro": "Vorteile",
+        "con": "Nachteile",
+        "awx_p1": "Lokale US/UK-Überweisungen komplett kostenlos",
+        "awx_p2": "Native DATEV-Schnittstelle (GoBD-konform)",
+        "awx_p3": "Guthabenverzinsung ('Yield') & Cashback auf Karten",
+        "awx_c1": "Monatliche Gebühr (19€), wenn Umsatz unter 10k fällt",
+        "awx_c2": "Plattform kann anfangs komplex wirken",
+        "wise_p1": "Keinerlei monatliche Fixkosten, transparenteste App",
+        "wise_p2": "Branchenbester Mid-Market Wechselkurs",
+        "wise_p3": "Sehr schnelle und einfache Kontoeröffnung",
+        "wise_c1": "Lokale Überweisungen (Payroll) kosten Gebühren (~0.50€)",
+        "wise_c2": "DATEV-Anbindung nur über Umwege/Exporte",
+        "rev_p1": "Sehr gute App mit starken Automatisierungen",
+        "rev_p2": "FX-Freibeträge in den Bezahlplänen (Grow)",
+        "rev_c1": "Mind. 25€ / Monat für einen sinnvollen Plan nötig",
+        "rev_c2": "Lokale USD-Daten teils über Partnerbanken"
     },
     "EN": {
         "title": ":material/account_balance: Strategic Multi-Currency Setup",
         "subtitle": "Dashboard for simulating Stripe payment flows, growth scenarios, and repatriation effects.",
+        "live_rates": "🟢 Live Exchange Rates Active",
+        "offline_rates": "🟡 Offline Rates (Fallback)",
         "sidebar_title": ":material/settings: Parameters",
         "market_us": "🇺🇸 US Market",
         "market_uk": "🇬🇧 UK Market",
@@ -111,7 +153,6 @@ T = {
         "insight_breakeven": "**Setup Boost:** Thanks to high setup fees for new customers, the volume quickly reaches highly profitable zones.",
         "insight_annual": "**Annual Leverage:** Extrapolated over 12 months, the setup protects approx. **€ {annual:,.0f}** from FX erosion.",
         "flow_title": ":material/account_tree: Target Infrastructure (Data Flow)",
-        "matrix_title": ":material/tune: Provider Detail Matrix",
         "scen_sq": "Status Quo (Local Bank)",
         "scen_new": "New Setup ({provider})",
         "cat_base": "1. Base Processing",
@@ -120,25 +161,47 @@ T = {
         "cat_repat": "4. Provider FX (Conversion)",
         "rate_base": "Base Fee / Month",
         "rate_transfer": "Local Transfer (US/UK)",
-        "rate_fx": "FX Markup (Conversion)"
+        "rate_fx": "FX Markup (Conversion)",
+        
+        "vs_title": ":material/balance: Provider Pros & Cons",
+        "pro": "Pros",
+        "con": "Cons",
+        "awx_p1": "Local US/UK transfers are completely free",
+        "awx_p2": "Native DATEV integration (German compliance)",
+        "awx_p3": "Interest on balances ('Yield') & card cashback",
+        "awx_c1": "Monthly fee (€19) if revenue drops below 10k",
+        "awx_c2": "Platform can feel complex initially",
+        "wise_p1": "Zero monthly fixed costs, very intuitive app",
+        "wise_p2": "Industry best Mid-Market exchange rate",
+        "wise_p3": "Very fast and easy account setup",
+        "wise_c1": "Fees apply for local transfers/payroll (~€0.50)",
+        "wise_c2": "DATEV integration requires workarounds",
+        "rev_p1": "Great app with strong automation features",
+        "rev_p2": "FX allowances included in paid plans (Grow)",
+        "rev_c1": "Requires at least €25/month for a sensible plan",
+        "rev_c2": "Local USD details sometimes via partner banks"
     }
 }
 
 def t(key):
     return T[lang][key]
 
-# --- KONSTANTEN & AKTUELLE WECHSELKURSE (März 2026) ---
+# --- KONSTANTEN ---
 AOV_USD = 1499
 AOV_GBP = 999
 SETUP_FEE_USD = 2500
 SETUP_FEE_GBP = 2500
 
-FX_RATE_USD_EUR = 0.92  
-FX_RATE_GBP_EUR = 1.17  
-
 # --- HEADER ---
 st.title(t("title"))
 st.markdown(t("subtitle"))
+
+# Info, ob Live Kurse geladen wurden
+if rates_are_live:
+    st.caption(f"{t('live_rates')} (1 USD = {FX_RATE_USD_EUR:.4f} €, 1 GBP = {FX_RATE_GBP_EUR:.4f} €)")
+else:
+    st.caption(f"{t('offline_rates')} (1 USD = {FX_RATE_USD_EUR:.4f} €, 1 GBP = {FX_RATE_GBP_EUR:.4f} €)")
+    
 st.divider()
 
 # --- SIDEBAR: INPUT PARAMETER ---
@@ -251,7 +314,6 @@ savings_percent = (savings_eur / vol_eur_total * 100) if vol_eur_total > 0 else 
 annual_savings = savings_eur * 12
 
 # --- KUMULIERTE 12-MONATS BERECHNUNG ---
-# Zinseszins-Effekt bei Subscriptions: Neukunden des 1. Monats zahlen 12x, die des 2. Monats 11x etc. Summe 1..12 = 78
 usd_sub_12m = (us_exist * 12 * AOV_USD) + (us_new * 78 * AOV_USD)
 usd_setup_12m = us_new * 12 * SETUP_FEE_USD
 usd_total_12m = usd_sub_12m + usd_setup_12m
@@ -379,3 +441,25 @@ graph LR
 <script>mermaid.initialize({startOnLoad:true});</script>
 """
 st.components.v1.html(mermaid_html, height=250)
+
+st.divider()
+
+# --- VOR- UND NACHTEILE VERGLEICH ---
+st.subheader(t("vs_title"))
+
+col_awx, col_wise, col_rev = st.columns(3)
+
+with col_awx:
+    st.markdown("### 🔷 Airwallex")
+    st.success(f"**{t('pro')}:**\n- {t('awx_p1')}\n- {t('awx_p2')}\n- {t('awx_p3')}")
+    st.error(f"**{t('con')}:**\n- {t('awx_c1')}\n- {t('awx_c2')}")
+
+with col_wise:
+    st.markdown("### 🟢 Wise Business")
+    st.success(f"**{t('pro')}:**\n- {t('wise_p1')}\n- {t('wise_p2')}\n- {t('wise_p3')}")
+    st.error(f"**{t('con')}:**\n- {t('wise_c1')}\n- {t('wise_c2')}")
+
+with col_rev:
+    st.markdown("### ⬛ Revolut Business")
+    st.success(f"**{t('pro')}:**\n- {t('rev_p1')}\n- {t('rev_p2')}")
+    st.error(f"**{t('con')}:**\n- {t('rev_c1')}\n- {t('rev_c2')}")
