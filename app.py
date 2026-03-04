@@ -49,6 +49,11 @@ T = {
         "annual_savings": "Jahres-Ersparnis (p.a.)",
         "base_fees": "Stripe Basis-Processing",
         "base_fees_help": "Unvermeidbare Standard-Gebühren (ca. 3.25% + 0.30€) für Kreditkarten.",
+        "proj_title": "📈 Kumulierte 12-Monats-Auswertung",
+        "proj_help": "Nimmt an, dass bestehende Kunden bleiben und jeden Monat die eingestellte Anzahl an Neukunden hinzukommt. Abos kumulieren sich entsprechend über das Jahr.",
+        "proj_sub": "Summe Subscriptions",
+        "proj_setup": "Summe Onboarding",
+        "proj_total": "Gesamt (12 Monate)",
         "chart_title": ":material/bar_chart: Kostenaufschlüsselung (in EUR)",
         "insights_title": ":material/insights: Analytische Insights",
         "insight_repat": "**Rücktausch-Falle:** Wenn ihr {pct}% zurücktauscht, zahlt ihr {fx_cost}€ an {provider} FX-Gebühren. Das schmälert die Ersparnis massiv.",
@@ -93,6 +98,11 @@ T = {
         "annual_savings": "Annual Savings (p.a.)",
         "base_fees": "Stripe Base Processing",
         "base_fees_help": "Unavoidable standard fees (approx. 3.25% + €0.30) for credit cards.",
+        "proj_title": "📈 Cumulative 12-Month Projection",
+        "proj_help": "Assumes existing customers stay and the configured number of new customers is added every month. Subscriptions compound over the year.",
+        "proj_sub": "Total Subscriptions",
+        "proj_setup": "Total Onboarding",
+        "proj_total": "Total (12 Months)",
         "chart_title": ":material/bar_chart: Cost Breakdown (in EUR)",
         "insights_title": ":material/insights: Analytical Insights",
         "insight_repat": "**Repatriation Trap:** By converting {pct}% back, you pay {fx_cost}€ in {provider} FX fees. This heavily reduces savings.",
@@ -207,10 +217,9 @@ repat_vol_gbp = vol_gbp * (repatriation_pct / 100)
 repat_vol_eur = (repat_vol_usd * FX_RATE_USD_EUR) + (repat_vol_gbp * FX_RATE_GBP_EUR)
 
 if provider == "Airwallex":
-    # 19€ Explore Plan, ABER kostenlos ab 10.000€ Volumen!
     provider_monthly_fee_eur = 19 if vol_eur_total < 10000 else 0
     provider_transfer_fee_eur = 0 
-    provider_fx_cost_eur = (repat_vol_usd * FX_RATE_USD_EUR * 0.005) + (repat_vol_gbp * FX_RATE_GBP_EUR * 0.005) # ca 0.5% FX
+    provider_fx_cost_eur = (repat_vol_usd * FX_RATE_USD_EUR * 0.005) + (repat_vol_gbp * FX_RATE_GBP_EUR * 0.005)
     r_base = f"€ 19 (entfällt, da Umsatz > 10k €)" if vol_eur_total >= 10000 and lang == "DE" else f"€ 19 (waived, revenue > 10k €)" if vol_eur_total >= 10000 else "€ 19"
     r_trans = "€ 0 (Kostenlos)" if lang == "DE" else "€ 0 (Free)"
     r_fx = "~ 0.5 %"
@@ -218,7 +227,7 @@ if provider == "Airwallex":
 elif provider == "Wise Business":
     provider_monthly_fee_eur = 0 
     provider_transfer_fee_eur = (1 * 0.39 * FX_RATE_USD_EUR) + (1 * 0.35 * FX_RATE_GBP_EUR) 
-    provider_fx_cost_eur = (repat_vol_usd * FX_RATE_USD_EUR * 0.0043) + (repat_vol_gbp * FX_RATE_GBP_EUR * 0.0043) # ca 0.43% FX
+    provider_fx_cost_eur = (repat_vol_usd * FX_RATE_USD_EUR * 0.0043) + (repat_vol_gbp * FX_RATE_GBP_EUR * 0.0043)
     r_base = "€ 0 (Einmalig 50€ Setup)" if lang == "DE" else "€ 0 (€50 one-time setup)"
     r_trans = "~ 0.35£ / 0.39$ pro ÜW" if lang == "DE" else "~ £0.35 / $0.39 per transfer"
     r_fx = "~ 0.43 %"
@@ -226,7 +235,6 @@ elif provider == "Wise Business":
 elif provider == "Revolut Business":
     provider_monthly_fee_eur = 25 
     provider_transfer_fee_eur = 0 
-    # Grow Plan: FX kostenlos bis 10k GBP (~11.7k EUR), danach 0.6%
     fx_subject_to_fee = max(0, repat_vol_eur - 11700)
     provider_fx_cost_eur = fx_subject_to_fee * 0.006
     r_base = "€ 25 (Grow Plan)"
@@ -240,6 +248,16 @@ savings_eur = total_cost_sq_eur - total_cost_new_eur
 savings_percent = (savings_eur / vol_eur_total * 100) if vol_eur_total > 0 else 0
 annual_savings = savings_eur * 12
 
+# --- KUMULIERTE 12-MONATS BERECHNUNG ---
+# Zinseszins-Effekt bei Subscriptions: Neukunden des 1. Monats zahlen 12x, die des 2. Monats 11x etc. Summe 1..12 = 78
+usd_sub_12m = (us_exist * 12 * AOV_USD) + (us_new * 78 * AOV_USD)
+usd_setup_12m = us_new * 12 * SETUP_FEE_USD
+usd_total_12m = usd_sub_12m + usd_setup_12m
+
+gbp_sub_12m = (uk_exist * 12 * AOV_GBP) + (uk_new * 78 * AOV_GBP)
+gbp_setup_12m = uk_new * 12 * SETUP_FEE_GBP
+gbp_total_12m = gbp_sub_12m + gbp_setup_12m
+
 # Konditionen anzeigen
 st.caption(t("provider_rates"))
 r1, r2, r3 = st.columns(3)
@@ -249,7 +267,7 @@ r3.info(f"**{t('rate_fx')}:**\n\n{r_fx}")
 
 st.divider()
 
-# --- DASHBOARD KPIs ---
+# --- DASHBOARD KPIs (Monatlich) ---
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -272,6 +290,25 @@ with col4:
     )
 
 st.caption(f"ℹ️ **{t('base_fees')}: € {base_fee_eur_total:,.0f}**. {t('base_fees_help')}")
+st.divider()
+
+# --- NEU: KUMULIERTE 12-MONATS-AUSWERTUNG ---
+st.subheader(t("proj_title"), help=t("proj_help"))
+
+proj_col1, proj_col2 = st.columns(2)
+
+with proj_col1:
+    st.markdown(f"**{t('market_us')}**")
+    st.write(f"• {t('proj_sub')}: **$ {usd_sub_12m:,.0f}**")
+    st.write(f"• {t('proj_setup')}: **$ {usd_setup_12m:,.0f}**")
+    st.success(f"**{t('proj_total')}: $ {usd_total_12m:,.0f}**")
+
+with proj_col2:
+    st.markdown(f"**{t('market_uk')}**")
+    st.write(f"• {t('proj_sub')}: **£ {gbp_sub_12m:,.0f}**")
+    st.write(f"• {t('proj_setup')}: **£ {gbp_setup_12m:,.0f}**")
+    st.success(f"**{t('proj_total')}: £ {gbp_total_12m:,.0f}**")
+
 st.divider()
 
 # --- VISUALISIERUNG & BREAK-EVEN ---
