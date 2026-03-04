@@ -109,7 +109,6 @@ with col_chart:
         )
     ).properties(height=300)
     
-    # GEÄNDERT: Nutzung der zukunftssicheren Streamlit-Syntax
     st.altair_chart(chart, width="stretch")
 
 with col_info:
@@ -123,10 +122,9 @@ st.divider()
 # 3. ARCHITEKTUR / WORKFLOW
 st.subheader(":material/account_tree: Ziel-Infrastruktur (Datenfluss)")
 
-# Trick zur Fehlervermeidung im Chat-Fenster:
-ticks = "`" * 3
-mermaid_code = f"""
-{ticks}mermaid
+# Kugelsichere Methode, um das Flussdiagramm via HTML/JS direkt zu rendern
+mermaid_html = """
+<div class="mermaid" style="font-family: sans-serif; display: flex; justify-content: center;">
 graph LR
     A[Kunden zahlen USD/GBP] -->|Processing| B[Stripe Plattform]
     B -->|Settlement Originalwährung| C[Multi-Währungs-Konto]
@@ -137,9 +135,11 @@ graph LR
     style B fill:#635BFF,stroke:#fff,stroke-width:2px,color:#fff
     style C fill:#10223A,stroke:#fff,stroke-width:2px,color:#fff
     style F fill:#E60000,stroke:#fff,stroke-width:2px,color:#fff
-{ticks}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true});</script>
 """
-st.markdown(mermaid_code)
+st.components.v1.html(mermaid_html, height=250)
 
 # 4. ANBIETER MATRIX
 with st.expander(":material/tune: Matrix: Welcher Anbieter passt zu uns?", expanded=True):
