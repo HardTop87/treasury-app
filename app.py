@@ -80,8 +80,9 @@ T = {
         "chart_title": ":material/bar_chart: Kostenaufschlüsselung aktueller Monat (in EUR)",
         "insights_title": ":material/insights: Analytische Insights",
         "insight_repat": "**Rücktausch-Falle:** Wenn ihr {pct}% zurücktauscht, zahlt ihr im aktuellen Monat {fx_cost}€ an {provider} FX-Gebühren. Das schmälert die Ersparnis.",
-        "insight_awx": "**Airwallex Bonus:** Durch euren aktuellen Umsatz von >10.000€ entfällt die Airwallex-Grundgebühr von 19€ automatisch.",
-        "insight_awx_fee": "**Airwallex Gebühr:** Da der Umsatz im aktuellen Monat unter 10.000€ liegt, fallen 19€ Grundgebühr an. (Wird im 12-Monats-Plan dynamisch berechnet, sobald 10k erreicht sind).",
+        "insight_awx_1": "**Airwallex Bonus:** Euer Startumsatz liegt bereits über 10.000€, daher entfällt die Airwallex-Grundgebühr von 19€ von Anfang an.",
+        "insight_awx_future": "**Airwallex Bonus:** Ab dem **{m}. Monat** überschreitet ihr 10.000€ Umsatz. Ab dann entfällt die Airwallex-Grundgebühr von 19€ automatisch!",
+        "insight_awx_never": "**Airwallex Gebühr:** Auch nach 12 Monaten bleibt der Umsatz unter 10.000€. Die Grundgebühr von 19€ fällt dauerhaft an.",
         "insight_breakeven": "**Setup-Boost:** Durch die hohen Einrichtungsgebühren bei Neukunden ist das Volumen extrem schnell in profitablen Zonen.",
         "insight_annual": "**Dynamischer Jahres-Hebel:** Unter Berücksichtigung des eingestellten monatlichen Wachstums schützt das Setup in den nächsten 12 Monaten ca. **€ {annual:,.0f}** vor der FX-Erosion.",
         "flow_title": ":material/account_tree: Ziel-Infrastruktur (Datenfluss)",
@@ -150,8 +151,9 @@ T = {
         "chart_title": ":material/bar_chart: Current Month Cost Breakdown (in EUR)",
         "insights_title": ":material/insights: Analytical Insights",
         "insight_repat": "**Repatriation Trap:** By converting {pct}% back, you pay {fx_cost}€ in {provider} FX fees this month. This reduces savings.",
-        "insight_awx": "**Airwallex Bonus:** Because your current volume exceeds €10,000, the €19 Airwallex base fee is automatically waived.",
-        "insight_awx_fee": "**Airwallex Fee:** Since current month's revenue is below €10,000, a €19 base fee applies. (This is dynamically updated in the 12-month projection once 10k is reached).",
+        "insight_awx_1": "**Airwallex Bonus:** Your starting revenue is already above €10,000, so the €19 Airwallex base fee is waived from the start.",
+        "insight_awx_future": "**Airwallex Bonus:** From **month {m}**, your revenue exceeds €10,000. The €19 base fee will automatically be waived from then on!",
+        "insight_awx_never": "**Airwallex Fee:** Even after 12 months, revenue remains below €10,000. The €19 base fee will apply permanently.",
         "insight_breakeven": "**Setup Boost:** Thanks to high setup fees for new customers, the volume quickly reaches highly profitable zones.",
         "insight_annual": "**Dynamic Annual Leverage:** Accounting for the set monthly growth, the setup protects approx. **€ {annual:,.0f}** from FX erosion over the next 12 months.",
         "flow_title": ":material/account_tree: Target Infrastructure (Data Flow)",
@@ -314,9 +316,9 @@ savings_eur = total_cost_sq_eur - total_cost_new_eur
 savings_percent = (savings_eur / vol_eur_total * 100) if vol_eur_total > 0 else 0
 
 
-# --- DYNAMISCHE 12-MONATS SCHLEIFE FÜR JAHRES-ERSPARNIS ---
-# Simuliert exakt Monat für Monat das Wachstum, um Gebühren (wie Airwallex < 10k) präzise abzubilden
+# --- DYNAMISCHE 12-MONATS SCHLEIFE FÜR JAHRES-ERSPARNIS & AIRWALLEX STATUS ---
 annual_savings_dynamic = 0
+awx_free_month = 0 # Trackt, ab welchem Monat die 10k Grenze geknackt wird
 
 for m in range(1, 13):
     # Kunden im Monat m
@@ -327,6 +329,10 @@ for m in range(1, 13):
     vol_usd_m = (us_cust_m * AOV_USD) + (us_new * SETUP_FEE_USD)
     vol_gbp_m = (uk_cust_m * AOV_GBP) + (uk_new * SETUP_FEE_GBP)
     vol_eur_m = (vol_usd_m * FX_RATE_USD_EUR) + (vol_gbp_m * FX_RATE_GBP_EUR)
+    
+    # Airwallex-Schwelle tracken
+    if vol_eur_m >= 10000 and awx_free_month == 0:
+        awx_free_month = m
     
     # Base Processing Monat m
     base_usd_m = (vol_usd_m * 0.0325) + (us_cust_m * 0.30)
@@ -465,10 +471,12 @@ with col_info:
     st.subheader(t("insights_title"))
     
     if provider == "Airwallex":
-        if vol_eur_total >= 10000:
-            st.success(t("insight_awx"))
+        if awx_free_month == 1:
+            st.success(t("insight_awx_1"))
+        elif awx_free_month > 1:
+            st.success(t("insight_awx_future").format(m=awx_free_month))
         else:
-            st.warning(t("insight_awx_fee"))
+            st.warning(t("insight_awx_never"))
         
     if repatriation_pct > 0:
         st.warning(t("insight_repat").format(pct=repatriation_pct, fx_cost=f"{provider_fx_cost_eur:,.0f}", provider=provider))
