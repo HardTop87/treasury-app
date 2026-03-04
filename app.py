@@ -1,67 +1,131 @@
+```python
 import streamlit as st
 import pandas as pd
+import altair as alt
 
-# Seiteneinstellungen
-st.set_page_config(page_title="Treasury Optimizer 2026", layout="wide")
+# --- SEITENKONFIGURATION ---
+st.set_page_config(
+    page_title="Treasury Optimizer", 
+    layout="wide", 
+    initial_sidebar_state="expanded"
+)
 
-# Titel und Einleitung
-st.title("🚀 Strategische FX-Optimierung für Stripe-Zahlungsströme")
-st.markdown("""
-Diese App analysiert das Einsparpotenzial durch den Wechsel von automatischer Stripe-Konvertierung 
-auf ein Multi-Währungs-Setup für unsere GmbH.
-""")
+# --- KONSTANTEN & ANNAHMEN ---
+AOV_USD = 1499
+AOV_GBP = 999
+FX_RATE_USD_EUR = 0.92 
+FX_RATE_GBP_EUR = 1.17
 
-# --- SEKTION 1: ROI RECHNER ---
-st.header("1. Interaktiver ROI-Rechner")
-col1, col2 = st.columns(2)
+# --- HEADER ---
+st.title(":material/account_balance: Strategisches Multi-Währungs-Setup")
+st.markdown("Dashboard zur Simulation der Stripe-Zahlungsströme und Optimierung der FX-Margen.")
+st.divider()
+
+# --- SIDEBAR: INPUT PARAMETER ---
+with st.sidebar:
+    st.header(":material/settings: Parameter")
+    
+    st.subheader("Monatliches Wachstum")
+    us_customers = st.slider("Neue US-Abonnenten", min_value=1, max_value=100, value=15, help="Anzahl der Kunden à $1.499")
+    uk_customers = st.slider("Neue UK-Abonnenten", min_value=1, max_value=100, value=10, help="Anzahl der Kunden à £999")
+    
+    st.subheader("Stripe Auszahlungs-Intervall")
+    payout_freq = st.selectbox(
+        "Wie oft soll Stripe auf das Multi-Währungskonto auszahlen?", 
+        options=["Monatlich (Empfohlen)", "Wöchentlich", "Täglich"],
+        help="Da aktuell 250k € Überbrückungskapital für Gehälter vorhanden sind, wird 'Monatlich' empfohlen, um die Fixgebühren pro Stripe-Payout zu minimieren."
+    )
+    
+    # Logik für das Dropdown
+    if payout_freq == "Monatlich (Empfohlen)":
+        payouts_per_month = 1
+    elif payout_freq == "Wöchentlich":
+        payouts_per_month = 4
+    else:
+        payouts_per_month = 20 
+
+# --- BERECHNUNGSLOGIK ---
+vol_usd = us_customers * AOV_USD
+vol_gbp = uk_customers * AOV_GBP
+vol_eur_total = (vol_usd * FX_RATE_USD_EUR) + (vol_gbp * FX_RATE_GBP_EUR)
+
+cost_status_quo_eur = vol_eur_total * 0.02
+cost_new_usd = (vol_usd * 0.0125) + (payouts_per_month * 1.50)
+cost_new_gbp = (vol_gbp * 0.01) + (payouts_per_month * 0.50)
+cost_new_eur = (cost_new_usd * FX_RATE_USD_EUR) + (cost_new_gbp * FX_RATE_GBP_EUR)
+
+savings_eur = cost_status_quo_eur - cost_new_eur
+
+# --- MAIN DASHBOARD ---
+# 1. KPIs
+col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.subheader("Input: Monatliche Volumina")
-    usd_volume = st.slider("Monatliches USD Volumen ($)", 0, 200000, 50000, step=5000)
-    gbp_volume = st.slider("Monatliches GBP Volumen (£)", 0, 100000, 20000, step=2000)
-    fx_fee_standard = st.number_input("Aktuelle Stripe FX-Gebühr (in %)", value=2.5, step=0.1)
-
-# Berechnungen
-total_volume_eur = (usd_volume * 0.92) + (gbp_volume * 1.17) # Grobe Kurse 2026
-annual_loss = (usd_volume + gbp_volume) * (fx_fee_standard / 100) * 12
-
+    st.metric(label="Umsatz-Volumen (Monat)", value=f"€ {vol_eur_total:,.0f}", help=f"Zusammengesetzt aus ${vol_usd:,.0f} und £{vol_gbp:,.0f}")
 with col2:
-    st.subheader("Dein Einsparpotenzial")
-    st.metric(label="Jährlicher Verlust durch Konvertierung", value=f"{annual_loss:,.2f} Units")
-    st.info(f"Durch ein 'Like-for-Like' Setup sparen wir ca. **{annual_loss * 0.8:,.2f} €** pro Jahr (abzüglich minimaler Auszahlungsgebühren).")
+    st.metric(label="Verlust im Standard-Setup", value=f"€ {cost_status_quo_eur:,.0f}", help="2% Umrechnungsgebühr, die Stripe bei direkter Auszahlung auf die Sparkasse einbehält.")
+with col3:
+    st.metric(label="Netto-Ersparnis (Monat)", value=f"€ {savings_eur:,.0f}", delta="Zusätzliche Marge", help="Ersparnis nach Abzug aller neuen Stripe-Payout-Gebühren für das Multi-Währungskonto.")
 
-# --- SEKTION 2: ANBIETERVERGLEICH ---
-st.header("2. Vergleich der Top-Lösungen (Stand 2026)")
+st.divider()
 
-data = {
-    "Feature": ["Lokale USD/GBP Daten", "DATEV-Schnittstelle", "Monatliche Gebühr", "Cashback (Karten)", "Best Use Case"],
-    "Airwallex": ["✅ Ja (Echt)", "✅ Nativ (Neu 2026)", "0€ - 49€", "1.5% (US/UK)", "Skalierende GmbH (Testsieger)"],
-    "Wise Business": ["✅ Ja (Echt)", "🟡 CSV / Drittanbieter", "0€ (einmalig 50€)", "0%", "Kleine Volumina / Simpel"],
-    "Revolut Business": ["✅ Ja (Partner)", "🟡 Standard-Feed", "25€ - 100€", "Variabel", "Tech-Teams / FX-Hedging"]
-}
-df = pd.DataFrame(data)
-st.table(df)
+# 2. VISUALISIERUNG & BREAK-EVEN
+col_chart, col_info = st.columns([2, 1])
 
-# --- SEKTION 3: DER NEUE WORKFLOW ---
-st.header("3. Ziel-Infrastruktur")
-st.mermaid("""
+with col_chart:
+    st.subheader(":material/bar_chart: Kostenvergleich pro Monat")
+    chart_data = pd.DataFrame({
+        "Szenario": ["Status Quo (Sparkasse)", "Neues Setup (Multi-Währung)"],
+        "Kosten in EUR": [cost_status_quo_eur, cost_new_eur]
+    })
+    
+    chart = alt.Chart(chart_data).mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5).encode(
+        x=alt.X("Szenario", axis=alt.Axis(labelAngle=0, title="")),
+        y=alt.Y("Kosten in EUR", title="Gebühren in €"),
+        color=alt.condition(
+            alt.datum.Szenario == 'Status Quo (Sparkasse)',
+            alt.value('#ef4444'),     
+            alt.value('#22c55e')      
+        )
+    ).properties(height=300)
+    st.altair_chart(chart, use_container_width=True)
+
+with col_info:
+    st.subheader(":material/insights: Analytische Insights")
+    st.info(f"**Break-Even Point:** Bei eurem Ticketpreis von $1.499 amortisiert sich selbst ein kostenpflichtiges Firmenkonto bereits ab dem **ersten** zahlenden US-Kunden.")
+    st.info("**Liquiditäts-Vorteil:** Durch die 250k € Kapitaldecke könnt ihr das Auszahlungsintervall auf 'monatlich' belassen. Das minimiert die Payout-Fixgebühren von Stripe auf nahezu Null.")
+    st.info("**UK Subsidiary:** Die Rechnung der Tochtergesellschaft kann verlustfrei über das lokale *Faster Payments (FPS)* Netzwerk aus dem GBP-Guthaben beglichen werden.")
+
+st.divider()
+
+# 3. ARCHITEKTUR / WORKFLOW
+st.subheader(":material/account_tree: Ziel-Infrastruktur (Datenfluss)")
+
+# Trick für die Darstellung, damit der Code-Block im Chat nicht bricht:
+bt = "`" * 3
+mermaid_code = f"""
+{bt}mermaid
 graph LR
-    A[Kunde USD/GBP] --> B[Stripe Account]
-    B -->|Keine Konvertierung| C[Airwallex Wallet]
-    C --> D[USD Gehalt / US Team]
-    C --> E[GBP Gehalt / UK Team]
-    B -->|EUR| F[Sparkasse]
-""")
+    A[Kunden zahlen USD/GBP] -->|Processing| B[Stripe Plattform]
+    B -->|Settlement Originalwährung| C[Multi-Währungs-Konto]
+    C -->|Lokales ACH Netz| D[US Freelancer]
+    C -->|Lokales FPS Netz| E[UK Tochterfirma]
+    B -->|EUR Subscriptions| F[Sparkasse Geschäftskonto]
+    
+    style B fill:#635BFF,stroke:#fff,stroke-width:2px,color:#fff
+    style C fill:#10223A,stroke:#fff,stroke-width:2px,color:#fff
+    style F fill:#E60000,stroke:#fff,stroke-width:2px,color:#fff
+{bt}
+"""
+st.markdown(mermaid_code)
 
-# --- SEKTION 4: SCHRITT-FÜR-SCHRITT PLAN ---
-st.header("4. Implementierungs-Roadmap")
-steps = [
-    "Phase 1: Airwallex Business Account Eröffnung (KYC via GmbH-Daten)",
-    "Phase 2: Aktivierung der 'Global Accounts' für USD (USA) & GBP (UK)",
-    "Phase 3: Hinterlegung der neuen Daten in Stripe (Payout Settings)",
-    "Phase 4: Anbindung an DATEV für die automatisierte Buchhaltung"
-]
-for step in steps:
-    st.checkbox(step)
+# 4. ANBIETER MATRIX
+with st.expander(":material/tune: Matrix: Welcher Anbieter passt zu uns?", expanded=True):
+    matrix_data = {
+        "Kriterium": ["Empfang USD (aus Stripe)", "UK FPS Überweisung", "DATEV-Anbindung", "Mitarbeiterkarten"],
+        "Airwallex": ["Kostenlos (Echte US-Routing-Nr.)", "Kostenlos", "Nativ integriert", "Kostenlos + Cashback"],
+        "Wise Business": ["Kostenlos (Echte US-Routing-Nr.)", "Geringe Fixgebühr", "Export / Drittanbieter", "Einmalige Gebühr"],
+        "Revolut Business": ["Kostenlos (Partner-Banken)", "Inklusive (bis Limit)", "Standard-Export", "Inklusive"]
+    }
+    st.table(pd.DataFrame(matrix_data))
 
-st.success("Bereit für die Entscheidung am Freitag!")
