@@ -137,7 +137,7 @@ graph LR
     style F fill:#E60000,stroke:#fff,stroke-width:2px,color:#fff
 
 """)
-4. ANBIETER MATRIX
+# 4. ANBIETER MATRIX
 with st.expander(":material/tune: Matrix: Welcher Anbieter passt zu uns?", expanded=True):
 matrix_data = {
 "Kriterium": ["Empfang USD (aus Stripe)", "UK FPS Überweisung", "DATEV-Anbindung", "Mitarbeiterkarten"],
