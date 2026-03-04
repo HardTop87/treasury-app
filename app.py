@@ -67,22 +67,23 @@ T = {
         "provider_rates": "Dynamische Gebührensätze:",
         "rev_usd": "Gesamtumsatz (USD)",
         "rev_gbp": "Gesamtumsatz (GBP)",
-        "net_savings": "Netto-Ersparnis (Monat)",
+        "net_savings": "Netto-Ersparnis (Aktueller Monat)",
         "savings_percent": "vom Umsatz",
         "annual_savings": "Jahres-Ersparnis (p.a.)",
         "base_fees": "Stripe Basis-Processing",
         "base_fees_help": "Unvermeidbare Standard-Gebühren (ca. 3.25% + 0.30€) für Kreditkarten.",
         "proj_title": ":material/trending_up: Kumulierte 12-Monats-Auswertung",
-        "proj_help": "Nimmt an, dass bestehende Kunden bleiben und jeden Monat die eingestellte Anzahl an Neukunden hinzukommt. Abos kumulieren sich entsprechend über das Jahr.",
+        "proj_help": "Simuliert dynamisch das Wachstum über 12 Monate. Berücksichtigt, dass Abos kumulieren und Airwallex-Gebühren ggf. entfallen, sobald im Jahresverlauf 10k Umsatz geknackt werden.",
         "proj_sub": "Summe Subscriptions",
         "proj_setup": "Summe Onboarding",
         "proj_total": "Gesamt (12 Monate)",
-        "chart_title": ":material/bar_chart: Kostenaufschlüsselung (in EUR)",
+        "chart_title": ":material/bar_chart: Kostenaufschlüsselung aktueller Monat (in EUR)",
         "insights_title": ":material/insights: Analytische Insights",
-        "insight_repat": "**Rücktausch-Falle:** Wenn ihr {pct}% zurücktauscht, zahlt ihr {fx_cost}€ an {provider} FX-Gebühren. Das schmälert die Ersparnis massiv.",
-        "insight_awx": "**Airwallex Bonus:** Durch euer Volumen von >10.000€ entfällt die Airwallex-Grundgebühr von 19€ automatisch.",
+        "insight_repat": "**Rücktausch-Falle:** Wenn ihr {pct}% zurücktauscht, zahlt ihr im aktuellen Monat {fx_cost}€ an {provider} FX-Gebühren. Das schmälert die Ersparnis.",
+        "insight_awx": "**Airwallex Bonus:** Durch euren aktuellen Umsatz von >10.000€ entfällt die Airwallex-Grundgebühr von 19€ automatisch.",
+        "insight_awx_fee": "**Airwallex Gebühr:** Da der Umsatz im aktuellen Monat unter 10.000€ liegt, fallen 19€ Grundgebühr an. (Wird im 12-Monats-Plan dynamisch berechnet, sobald 10k erreicht sind).",
         "insight_breakeven": "**Setup-Boost:** Durch die hohen Einrichtungsgebühren bei Neukunden ist das Volumen extrem schnell in profitablen Zonen.",
-        "insight_annual": "**Jahres-Hebel:** Auf 12 Monate hochgerechnet schützt das Setup ca. **€ {annual:,.0f}** vor der FX-Erosion.",
+        "insight_annual": "**Dynamischer Jahres-Hebel:** Unter Berücksichtigung des eingestellten monatlichen Wachstums schützt das Setup in den nächsten 12 Monaten ca. **€ {annual:,.0f}** vor der FX-Erosion.",
         "flow_title": ":material/account_tree: Ziel-Infrastruktur (Datenfluss)",
         "scen_sq": "Status Quo (Sparkasse)",
         "scen_new": "Neues Setup ({provider})",
@@ -134,24 +135,25 @@ T = {
         "repat_help": "If bridge capital is depleted and foreign currency must be converted for German payroll.",
         "provider_select": ":material/account_balance_wallet: Target Provider",
         "provider_rates": "Dynamic Fee Structure:",
-        "rev_usd": "Total Revenue (USD)",
-        "rev_gbp": "Total Revenue (GBP)",
-        "net_savings": "Net Savings (Monthly)",
+        "rev_usd": "Current Revenue (USD)",
+        "rev_gbp": "Current Revenue (GBP)",
+        "net_savings": "Net Savings (Current Month)",
         "savings_percent": "of revenue",
         "annual_savings": "Annual Savings (p.a.)",
         "base_fees": "Stripe Base Processing",
         "base_fees_help": "Unavoidable standard fees (approx. 3.25% + €0.30) for credit cards.",
         "proj_title": ":material/trending_up: Cumulative 12-Month Projection",
-        "proj_help": "Assumes existing customers stay and the configured number of new customers is added every month. Subscriptions compound over the year.",
+        "proj_help": "Dynamically simulates growth over 12 months. Accounts for compounding subscriptions and dropping Airwallex fees once 10k revenue is reached during the year.",
         "proj_sub": "Total Subscriptions",
         "proj_setup": "Total Onboarding",
         "proj_total": "Total (12 Months)",
-        "chart_title": ":material/bar_chart: Cost Breakdown (in EUR)",
+        "chart_title": ":material/bar_chart: Current Month Cost Breakdown (in EUR)",
         "insights_title": ":material/insights: Analytical Insights",
-        "insight_repat": "**Repatriation Trap:** By converting {pct}% back, you pay {fx_cost}€ in {provider} FX fees. This heavily reduces savings.",
-        "insight_awx": "**Airwallex Bonus:** Because your volume exceeds €10,000, the €19 Airwallex base fee is automatically waived.",
+        "insight_repat": "**Repatriation Trap:** By converting {pct}% back, you pay {fx_cost}€ in {provider} FX fees this month. This reduces savings.",
+        "insight_awx": "**Airwallex Bonus:** Because your current volume exceeds €10,000, the €19 Airwallex base fee is automatically waived.",
+        "insight_awx_fee": "**Airwallex Fee:** Since current month's revenue is below €10,000, a €19 base fee applies. (This is dynamically updated in the 12-month projection once 10k is reached).",
         "insight_breakeven": "**Setup Boost:** Thanks to high setup fees for new customers, the volume quickly reaches highly profitable zones.",
-        "insight_annual": "**Annual Leverage:** Extrapolated over 12 months, the setup protects approx. **€ {annual:,.0f}** from FX erosion.",
+        "insight_annual": "**Dynamic Annual Leverage:** Accounting for the set monthly growth, the setup protects approx. **€ {annual:,.0f}** from FX erosion over the next 12 months.",
         "flow_title": ":material/account_tree: Target Infrastructure (Data Flow)",
         "scen_sq": "Status Quo (Local Bank)",
         "scen_new": "New Setup ({provider})",
@@ -246,8 +248,8 @@ provider = st.selectbox(
     label_visibility="collapsed"
 )
 
-# --- BERECHNUNGSLOGIK ---
-# 1. Volumina (Abo-Bestand + Abo-Neu + Setup-Gebühr-Neu)
+# --- BERECHNUNGSLOGIK (AKTUELLER MONAT) ---
+# 1. Volumina (Abo-Bestand + Abo-Neu + Setup-Gebühr-Neu) für den ersten Monat
 total_us_customers = us_exist + us_new
 total_uk_customers = uk_exist + uk_new
 
@@ -255,28 +257,27 @@ vol_usd = (total_us_customers * AOV_USD) + (us_new * SETUP_FEE_USD)
 vol_gbp = (total_uk_customers * AOV_GBP) + (uk_new * SETUP_FEE_GBP)
 vol_eur_total = (vol_usd * FX_RATE_USD_EUR) + (vol_gbp * FX_RATE_GBP_EUR)
 
-# 2. Unvermeidbare Basis-Gebühren (Stripe Processing: ca. 3.25% + 0.30€ pro Transaktion)
+# 2. Unvermeidbare Basis-Gebühren (Aktueller Monat)
 transactions_usd = total_us_customers 
 transactions_gbp = total_uk_customers
 base_fee_usd_processing = (vol_usd * 0.0325) + (transactions_usd * 0.30)
 base_fee_gbp_processing = (vol_gbp * 0.025) + (transactions_gbp * 0.30) 
 base_fee_eur_total = (base_fee_usd_processing * FX_RATE_USD_EUR) + (base_fee_gbp_processing * FX_RATE_GBP_EUR)
 
-# 3. Status Quo (2% Stripe Standard Konvertierung)
+# 3. Status Quo Kosten (Aktueller Monat)
 fx_cost_status_quo_eur = (vol_usd * FX_RATE_USD_EUR * 0.02) + (vol_gbp * FX_RATE_GBP_EUR * 0.02)
 total_cost_sq_eur = base_fee_eur_total + fx_cost_status_quo_eur
 
-# 4. Neues Setup (Stripe Payout Fees auf Fremdwährungskonten)
+# 4. Neues Setup Stripe Payout Fees (Aktueller Monat)
 stripe_payout_cost_usd = (vol_usd * 0.0125) + (payouts_per_month * 1.50) if vol_usd > 0 else 0
 stripe_payout_cost_gbp = (vol_gbp * 0.01) + (payouts_per_month * 0.50) if vol_gbp > 0 else 0
 stripe_payout_total_eur = (stripe_payout_cost_usd * FX_RATE_USD_EUR) + (stripe_payout_cost_gbp * FX_RATE_GBP_EUR)
 
-# 5. Anbieter-spezifische Fix- & Transaktionskosten (Dynamisch)
+# 5. Anbieter-spezifische Fix- & Transaktionskosten (Aktueller Monat)
 provider_monthly_fee_eur = 0
 provider_transfer_fee_eur = 0
 provider_fx_cost_eur = 0
 
-# Volumen für Rücktausch in EUR
 repat_vol_usd = vol_usd * (repatriation_pct / 100)
 repat_vol_gbp = vol_gbp * (repatriation_pct / 100)
 repat_vol_eur = (repat_vol_usd * FX_RATE_USD_EUR) + (repat_vol_gbp * FX_RATE_GBP_EUR)
@@ -308,12 +309,65 @@ elif provider == "Revolut Business":
 
 total_cost_new_eur = base_fee_eur_total + stripe_payout_total_eur + provider_monthly_fee_eur + provider_transfer_fee_eur + provider_fx_cost_eur
 
-# 6. Ersparnis berechnen
+# 6. Ersparnis aktueller Monat berechnen
 savings_eur = total_cost_sq_eur - total_cost_new_eur
 savings_percent = (savings_eur / vol_eur_total * 100) if vol_eur_total > 0 else 0
-annual_savings = savings_eur * 12
 
-# --- KUMULIERTE 12-MONATS BERECHNUNG ---
+
+# --- DYNAMISCHE 12-MONATS SCHLEIFE FÜR JAHRES-ERSPARNIS ---
+# Simuliert exakt Monat für Monat das Wachstum, um Gebühren (wie Airwallex < 10k) präzise abzubilden
+annual_savings_dynamic = 0
+
+for m in range(1, 13):
+    # Kunden im Monat m
+    us_cust_m = us_exist + (m * us_new)
+    uk_cust_m = uk_exist + (m * uk_new)
+    
+    # Volumen im Monat m
+    vol_usd_m = (us_cust_m * AOV_USD) + (us_new * SETUP_FEE_USD)
+    vol_gbp_m = (uk_cust_m * AOV_GBP) + (uk_new * SETUP_FEE_GBP)
+    vol_eur_m = (vol_usd_m * FX_RATE_USD_EUR) + (vol_gbp_m * FX_RATE_GBP_EUR)
+    
+    # Base Processing Monat m
+    base_usd_m = (vol_usd_m * 0.0325) + (us_cust_m * 0.30)
+    base_gbp_m = (vol_gbp_m * 0.025) + (uk_cust_m * 0.30) 
+    base_eur_m = (base_usd_m * FX_RATE_USD_EUR) + (base_gbp_m * FX_RATE_GBP_EUR)
+    
+    # Status Quo Monat m
+    sq_fx_m = (vol_usd_m * FX_RATE_USD_EUR * 0.02) + (vol_gbp_m * FX_RATE_GBP_EUR * 0.02)
+    sq_cost_m = base_eur_m + sq_fx_m
+    
+    # Stripe Payouts Monat m
+    p_usd_m = (vol_usd_m * 0.0125) + (payouts_per_month * 1.50) if vol_usd_m > 0 else 0
+    p_gbp_m = (vol_gbp_m * 0.01) + (payouts_per_month * 0.50) if vol_gbp_m > 0 else 0
+    payout_eur_m = (p_usd_m * FX_RATE_USD_EUR) + (p_gbp_m * FX_RATE_GBP_EUR)
+    
+    # Repatriation Monat m
+    rep_usd_m = vol_usd_m * (repatriation_pct / 100)
+    rep_gbp_m = vol_gbp_m * (repatriation_pct / 100)
+    rep_eur_m = (rep_usd_m * FX_RATE_USD_EUR) + (rep_gbp_m * FX_RATE_GBP_EUR)
+    
+    prov_fee_m = 0
+    trans_fee_m = 0
+    fx_fee_m = 0
+    
+    if provider == "Airwallex":
+        prov_fee_m = 19 if vol_eur_m < 10000 else 0
+        fx_fee_m = (rep_usd_m * FX_RATE_USD_EUR * 0.005) + (rep_gbp_m * FX_RATE_GBP_EUR * 0.005)
+    elif provider == "Wise Business":
+        trans_fee_m = (1 * 0.39 * FX_RATE_USD_EUR) + (1 * 0.35 * FX_RATE_GBP_EUR) 
+        fx_fee_m = (rep_usd_m * FX_RATE_USD_EUR * 0.0043) + (rep_gbp_m * FX_RATE_GBP_EUR * 0.0043)
+    elif provider == "Revolut Business":
+        prov_fee_m = 25 
+        fx_subj = max(0, rep_eur_m - 11700)
+        fx_fee_m = fx_subj * 0.006
+        
+    new_cost_m = base_eur_m + payout_eur_m + prov_fee_m + trans_fee_m + fx_fee_m
+    
+    # Ersparnis im jeweiligen Monat zur Jahressumme addieren
+    annual_savings_dynamic += (sq_cost_m - new_cost_m)
+
+# --- KUMULIERTE 12-MONATS BERECHNUNG (Umsatz) ---
 usd_sub_12m = (us_exist * 12 * AOV_USD) + (us_new * 78 * AOV_USD)
 usd_setup_12m = us_new * 12 * SETUP_FEE_USD
 usd_total_12m = usd_sub_12m + usd_setup_12m
@@ -321,6 +375,7 @@ usd_total_12m = usd_sub_12m + usd_setup_12m
 gbp_sub_12m = (uk_exist * 12 * AOV_GBP) + (uk_new * 78 * AOV_GBP)
 gbp_setup_12m = uk_new * 12 * SETUP_FEE_GBP
 gbp_total_12m = gbp_sub_12m + gbp_setup_12m
+
 
 # Konditionen anzeigen
 st.caption(t("provider_rates"))
@@ -331,7 +386,7 @@ r3.info(f"**{t('rate_fx')}:**\n\n{r_fx}")
 
 st.divider()
 
-# --- DASHBOARD KPIs (Monatlich) ---
+# --- DASHBOARD KPIs (Aktueller Monat) ---
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -348,15 +403,15 @@ with col3:
 with col4:
     st.metric(
         label=t("annual_savings"), 
-        value=f"€ {annual_savings:,.0f}",
+        value=f"€ {annual_savings_dynamic:,.0f}",
         delta="12 Months ROI",
-        delta_color="normal" if annual_savings > 0 else "inverse"
+        delta_color="normal" if annual_savings_dynamic > 0 else "inverse"
     )
 
 st.caption(f":material/info: **{t('base_fees')}: € {base_fee_eur_total:,.0f}**. {t('base_fees_help')}")
 st.divider()
 
-# --- NEU: KUMULIERTE 12-MONATS-AUSWERTUNG ---
+# --- KUMULIERTE 12-MONATS-AUSWERTUNG ---
 st.subheader(t("proj_title"), help=t("proj_help"))
 
 proj_col1, proj_col2 = st.columns(2)
@@ -409,15 +464,18 @@ with col_chart:
 with col_info:
     st.subheader(t("insights_title"))
     
-    if provider == "Airwallex" and vol_eur_total >= 10000:
-        st.success(t("insight_awx"))
+    if provider == "Airwallex":
+        if vol_eur_total >= 10000:
+            st.success(t("insight_awx"))
+        else:
+            st.warning(t("insight_awx_fee"))
         
     if repatriation_pct > 0:
         st.warning(t("insight_repat").format(pct=repatriation_pct, fx_cost=f"{provider_fx_cost_eur:,.0f}", provider=provider))
     else:
         st.info(t("insight_breakeven"))
         
-    st.success(t("insight_annual").format(annual=annual_savings))
+    st.success(t("insight_annual").format(annual=annual_savings_dynamic))
 
 st.divider()
 
