@@ -25,7 +25,6 @@ with st.sidebar:
     st.header(":material/settings: Parameter")
     
     st.subheader("Monatliches Wachstum")
-    # GEÄNDERT: st.number_input statt st.slider für exakte Eingaben
     us_customers = st.number_input("Anzahl US-Abonnenten", min_value=0, value=15, step=1, help="Kunden à $1.499")
     uk_customers = st.number_input("Anzahl UK-Abonnenten", min_value=0, value=10, step=1, help="Kunden à £999")
     
@@ -63,7 +62,7 @@ cost_new_eur = (cost_new_usd * FX_RATE_USD_EUR) + (cost_new_gbp * FX_RATE_GBP_EU
 savings_eur = cost_status_quo_eur - cost_new_eur
 
 # --- MAIN DASHBOARD ---
-# 1. KPIs (GEÄNDERT: Umsatz getrennt nach USD und GBP, Ersparnis in EUR)
+# 1. KPIs (Umsatz getrennt nach USD und GBP, Ersparnis in EUR)
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -120,7 +119,7 @@ with col_info:
 
 st.divider()
 
-# 3. ARCHITEKTUR / WORKFLOW (GEÄNDERT: Saubere Formatierung für Mermaid)
+# 3. ARCHITEKTUR / WORKFLOW
 st.subheader(":material/account_tree: Ziel-Infrastruktur (Datenfluss)")
 
 st.markdown("""
