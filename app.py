@@ -122,8 +122,10 @@ st.divider()
 # 3. ARCHITEKTUR / WORKFLOW
 st.subheader(":material/account_tree: Ziel-Infrastruktur (Datenfluss)")
 
-st.markdown("""
-```mermaid
+# Trick zur Fehlervermeidung im Chat-Fenster:
+ticks = "`" * 3
+mermaid_code = f"""
+{ticks}mermaid
 graph LR
     A[Kunden zahlen USD/GBP] -->|Processing| B[Stripe Plattform]
     B -->|Settlement Originalwährung| C[Multi-Währungs-Konto]
@@ -134,15 +136,18 @@ graph LR
     style B fill:#635BFF,stroke:#fff,stroke-width:2px,color:#fff
     style C fill:#10223A,stroke:#fff,stroke-width:2px,color:#fff
     style F fill:#E60000,stroke:#fff,stroke-width:2px,color:#fff
+{ticks}
+"""
+st.markdown(mermaid_code)
 
-""")
 # 4. ANBIETER MATRIX
 with st.expander(":material/tune: Matrix: Welcher Anbieter passt zu uns?", expanded=True):
-matrix_data = {
-"Kriterium": ["Empfang USD (aus Stripe)", "UK FPS Überweisung", "DATEV-Anbindung", "Mitarbeiterkarten"],
-"Airwallex": ["Kostenlos (Echte US-Routing-Nr.)", "Kostenlos", "Nativ integriert", "Kostenlos + Cashback"],
-"Wise Business": ["Kostenlos (Echte US-Routing-Nr.)", "Geringe Fixgebühr", "Export / Drittanbieter", "Einmalige Gebühr"],
-"Revolut Business": ["Kostenlos (Partner-Banken)", "Inklusive (bis Limit)", "Standard-Export", "Inklusive"]
-}
-st.table(pd.DataFrame(matrix_data))
+    matrix_data = {
+        "Kriterium": ["Empfang USD (aus Stripe)", "UK FPS Überweisung", "DATEV-Anbindung", "Mitarbeiterkarten"],
+        "Airwallex": ["Kostenlos (Echte US-Routing-Nr.)", "Kostenlos", "Nativ integriert", "Kostenlos + Cashback"],
+        "Wise Business": ["Kostenlos (Echte US-Routing-Nr.)", "Geringe Fixgebühr", "Export / Drittanbieter", "Einmalige Gebühr"],
+        "Revolut Business": ["Kostenlos (Partner-Banken)", "Inklusive (bis Limit)", "Standard-Export", "Inklusive"]
+    }
+    st.table(pd.DataFrame(matrix_data))
+
 
