@@ -61,7 +61,10 @@ T = {
         "cat_base": "1. Basis-Processing",
         "cat_fx": "2. Stripe FX / Payout Gebühr",
         "cat_prov": "3. Provider Fixkosten",
-        "cat_repat": "4. Provider FX (Rücktausch)"
+        "cat_repat": "4. Provider FX (Rücktausch)",
+        "rate_base": "Grundgebühr / Monat",
+        "rate_transfer": "Lokale Überweisung (US/UK)",
+        "rate_fx": "FX-Aufschlag (Rücktausch)"
     },
     "EN": {
         "title": ":material/account_balance: Strategic Multi-Currency Setup",
@@ -102,7 +105,10 @@ T = {
         "cat_base": "1. Base Processing",
         "cat_fx": "2. Stripe FX / Payout Fee",
         "cat_prov": "3. Provider Fixed Cost",
-        "cat_repat": "4. Provider FX (Conversion)"
+        "cat_repat": "4. Provider FX (Conversion)",
+        "rate_base": "Base Fee / Month",
+        "rate_transfer": "Local Transfer (US/UK)",
+        "rate_fx": "FX Markup (Conversion)"
     }
 }
 
@@ -205,7 +211,7 @@ if provider == "Airwallex":
     provider_monthly_fee_eur = 19 if vol_eur_total < 10000 else 0
     provider_transfer_fee_eur = 0 
     provider_fx_cost_eur = (repat_vol_usd * FX_RATE_USD_EUR * 0.005) + (repat_vol_gbp * FX_RATE_GBP_EUR * 0.005) # ca 0.5% FX
-    r_base = f"€ 19 (entfällt, da Umsatz > 10k €)" if vol_eur_total >= 10000 else "€ 19 (Umsatz < 10k €)"
+    r_base = f"€ 19 (entfällt, da Umsatz > 10k €)" if vol_eur_total >= 10000 and lang == "DE" else f"€ 19 (waived, revenue > 10k €)" if vol_eur_total >= 10000 else "€ 19"
     r_trans = "€ 0 (Kostenlos)" if lang == "DE" else "€ 0 (Free)"
     r_fx = "~ 0.5 %"
 
@@ -237,9 +243,9 @@ annual_savings = savings_eur * 12
 # Konditionen anzeigen
 st.caption(t("provider_rates"))
 r1, r2, r3 = st.columns(3)
-r1.info(f"**{T[lang]['rate_base']}:**\n\n{r_base}")
-r2.info(f"**{T[lang]['rate_transfer']}:**\n\n{r_trans}")
-r3.info(f"**{T[lang]['rate_fx']}:**\n\n{r_fx}")
+r1.info(f"**{t('rate_base')}:**\n\n{r_base}")
+r2.info(f"**{t('rate_transfer')}:**\n\n{r_trans}")
+r3.info(f"**{t('rate_fx')}:**\n\n{r_fx}")
 
 st.divider()
 
