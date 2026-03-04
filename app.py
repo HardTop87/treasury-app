@@ -109,7 +109,8 @@ with col_chart:
         )
     ).properties(height=300)
     
-    st.altair_chart(chart, use_container_width=True)
+    # GEÄNDERT: Nutzung der zukunftssicheren Streamlit-Syntax
+    st.altair_chart(chart, width="stretch")
 
 with col_info:
     st.subheader(":material/insights: Analytische Insights")
@@ -149,5 +150,3 @@ with st.expander(":material/tune: Matrix: Welcher Anbieter passt zu uns?", expan
         "Revolut Business": ["Kostenlos (Partner-Banken)", "Inklusive (bis Limit)", "Standard-Export", "Inklusive"]
     }
     st.table(pd.DataFrame(matrix_data))
-
-
