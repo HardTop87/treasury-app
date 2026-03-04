@@ -35,7 +35,7 @@ col1, col2 = st.columns([8, 2])
 with col2:
     lang_toggle = st.radio(
         "Language", 
-        ["🇩🇪 DE", "🇬🇧 EN"], 
+        ["DE", "EN"], 
         horizontal=True, 
         label_visibility="collapsed"
     )
@@ -46,11 +46,11 @@ T = {
     "DE": {
         "title": ":material/account_balance: Strategisches Multi-Währungs-Setup",
         "subtitle": "Dashboard zur Simulation der Stripe-Zahlungsströme, Wachstums-Szenarien und Rücktausch-Effekte.",
-        "live_rates": "🟢 Live-Wechselkurse aktiv",
-        "offline_rates": "🟡 Offline-Kurse (Fallback)",
+        "live_rates": ":material/check_circle: Live-Wechselkurse aktiv",
+        "offline_rates": ":material/warning: Offline-Kurse (Fallback)",
         "sidebar_title": ":material/settings: Parameter",
-        "market_us": "🇺🇸 US-Markt",
-        "market_uk": "🇬🇧 UK-Markt",
+        "market_us": ":material/public: US-Markt",
+        "market_uk": ":material/language: UK-Markt",
         "exist_subs": "Bestehende Kunden",
         "new_subs": "Neue Kunden / Monat",
         "help_subs": "Reguläres Abo ($1.499 / £999)",
@@ -72,7 +72,7 @@ T = {
         "annual_savings": "Jahres-Ersparnis (p.a.)",
         "base_fees": "Stripe Basis-Processing",
         "base_fees_help": "Unvermeidbare Standard-Gebühren (ca. 3.25% + 0.30€) für Kreditkarten.",
-        "proj_title": "📈 Kumulierte 12-Monats-Auswertung",
+        "proj_title": ":material/trending_up: Kumulierte 12-Monats-Auswertung",
         "proj_help": "Nimmt an, dass bestehende Kunden bleiben und jeden Monat die eingestellte Anzahl an Neukunden hinzukommt. Abos kumulieren sich entsprechend über das Jahr.",
         "proj_sub": "Summe Subscriptions",
         "proj_setup": "Summe Onboarding",
@@ -115,11 +115,11 @@ T = {
     "EN": {
         "title": ":material/account_balance: Strategic Multi-Currency Setup",
         "subtitle": "Dashboard for simulating Stripe payment flows, growth scenarios, and repatriation effects.",
-        "live_rates": "🟢 Live Exchange Rates Active",
-        "offline_rates": "🟡 Offline Rates (Fallback)",
+        "live_rates": ":material/check_circle: Live Exchange Rates Active",
+        "offline_rates": ":material/warning: Offline Rates (Fallback)",
         "sidebar_title": ":material/settings: Parameters",
-        "market_us": "🇺🇸 US Market",
-        "market_uk": "🇬🇧 UK Market",
+        "market_us": ":material/public: US Market",
+        "market_uk": ":material/language: UK Market",
         "exist_subs": "Existing Customers",
         "new_subs": "New Customers / Month",
         "help_subs": "Regular sub ($1,499 / £999)",
@@ -141,7 +141,7 @@ T = {
         "annual_savings": "Annual Savings (p.a.)",
         "base_fees": "Stripe Base Processing",
         "base_fees_help": "Unavoidable standard fees (approx. 3.25% + €0.30) for credit cards.",
-        "proj_title": "📈 Cumulative 12-Month Projection",
+        "proj_title": ":material/trending_up: Cumulative 12-Month Projection",
         "proj_help": "Assumes existing customers stay and the configured number of new customers is added every month. Subscriptions compound over the year.",
         "proj_sub": "Total Subscriptions",
         "proj_setup": "Total Onboarding",
@@ -209,11 +209,11 @@ with st.sidebar:
     st.header(t("sidebar_title"))
     
     st.subheader(t("market_us"))
-    us_exist = st.number_input(f"{t('exist_subs')} (US)", min_value=0, value=10, step=1, help=t("help_subs"))
+    us_exist = st.number_input(f"{t('exist_subs')} (US)", min_value=0, value=1, step=1, help=t("help_subs"))
     us_new = st.number_input(f"{t('new_subs')} (US)", min_value=0, value=2, step=1, help=t("help_new_subs"))
     
     st.subheader(t("market_uk"))
-    uk_exist = st.number_input(f"{t('exist_subs')} (UK)", min_value=0, value=5, step=1, help=t("help_subs"))
+    uk_exist = st.number_input(f"{t('exist_subs')} (UK)", min_value=0, value=0, step=1, help=t("help_subs"))
     uk_new = st.number_input(f"{t('new_subs')} (UK)", min_value=0, value=1, step=1, help=t("help_new_subs"))
     
     st.divider()
@@ -353,7 +353,7 @@ with col4:
         delta_color="normal" if annual_savings > 0 else "inverse"
     )
 
-st.caption(f"ℹ️ **{t('base_fees')}: € {base_fee_eur_total:,.0f}**. {t('base_fees_help')}")
+st.caption(f":material/info: **{t('base_fees')}: € {base_fee_eur_total:,.0f}**. {t('base_fees_help')}")
 st.divider()
 
 # --- NEU: KUMULIERTE 12-MONATS-AUSWERTUNG ---
@@ -450,16 +450,16 @@ st.subheader(t("vs_title"))
 col_awx, col_wise, col_rev = st.columns(3)
 
 with col_awx:
-    st.markdown("### 🔷 Airwallex")
+    st.markdown("### :material/business: Airwallex")
     st.success(f"**{t('pro')}:**\n- {t('awx_p1')}\n- {t('awx_p2')}\n- {t('awx_p3')}")
     st.error(f"**{t('con')}:**\n- {t('awx_c1')}\n- {t('awx_c2')}")
 
 with col_wise:
-    st.markdown("### 🟢 Wise Business")
+    st.markdown("### :material/account_balance: Wise Business")
     st.success(f"**{t('pro')}:**\n- {t('wise_p1')}\n- {t('wise_p2')}\n- {t('wise_p3')}")
     st.error(f"**{t('con')}:**\n- {t('wise_c1')}\n- {t('wise_c2')}")
 
 with col_rev:
-    st.markdown("### ⬛ Revolut Business")
+    st.markdown("### :material/credit_card: Revolut Business")
     st.success(f"**{t('pro')}:**\n- {t('rev_p1')}\n- {t('rev_p2')}")
     st.error(f"**{t('con')}:**\n- {t('rev_c1')}\n- {t('rev_c2')}")
