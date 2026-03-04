@@ -10,7 +10,6 @@ st.set_page_config(
 )
 
 # --- SPRACHSTEUERUNG (Zweisprachigkeit) ---
-# Language Toggle in der Top-Bar
 col1, col2 = st.columns([8, 2])
 with col2:
     lang_toggle = st.radio(
@@ -25,29 +24,33 @@ lang = "DE" if "DE" in lang_toggle else "EN"
 T = {
     "DE": {
         "title": ":material/account_balance: Strategisches Multi-Währungs-Setup",
-        "subtitle": "Dashboard zur Simulation der Stripe-Zahlungsströme und Optimierung der FX-Margen.",
+        "subtitle": "Dashboard zur Simulation der Stripe-Zahlungsströme, Wachstums-Szenarien und Optimierung der FX-Margen.",
         "sidebar_title": ":material/settings: Parameter",
-        "growth": "Monatliches Wachstum",
-        "us_subs": "Anzahl US-Abonnenten",
-        "uk_subs": "Anzahl UK-Abonnenten",
+        "market_us": "🇺🇸 US-Markt",
+        "market_uk": "🇬🇧 UK-Markt",
+        "exist_subs": "Bestehende Kunden",
+        "new_subs": "Neue Kunden / Monat",
+        "help_subs": "Reguläres Abo",
+        "help_new_subs": "Inkl. $2.500 einmalige Einrichtungsgebühr",
+        "help_new_subs_uk": "Inkl. £2.500 einmalige Einrichtungsgebühr",
         "payout_freq": "Stripe Auszahlungs-Intervall",
         "payout_help": "Da aktuell 250k € Überbrückungskapital für Gehälter vorhanden sind, wird 'Monatlich' empfohlen.",
         "monthly": "Monatlich (Empfohlen)",
         "weekly": "Wöchentlich",
         "daily": "Täglich",
-        "provider_select": "Ziel-Anbieter (Multi-Währung)",
-        "rev_usd": "Umsatz (USD)",
-        "rev_gbp": "Umsatz (GBP)",
+        "provider_select": ":material/account_balance_wallet: Ziel-Anbieter (Multi-Währung) auswählen",
+        "provider_rates": "Gebührensätze des gewählten Anbieters:",
+        "rev_usd": "Gesamtumsatz (USD)",
+        "rev_gbp": "Gesamtumsatz (GBP)",
         "net_savings": "Netto-Ersparnis (Monat)",
         "savings_percent": "vom Umsatz",
         "annual_savings": "Jahres-Ersparnis (p.a.)",
         "base_fees": "Unvermeidbare Stripe Basis-Gebühren",
-        "base_fees_help": "Standard Payment-Processing Gebühren für internationale Karten (ca. 3.25% + 0.30€). Diese fallen immer an, unabhängig vom Setup.",
+        "base_fees_help": "Standard Payment-Processing (ca. 3.25% + 0.30€) für Abos und Einrichtungsgebühren.",
         "chart_title": ":material/bar_chart: Kostenaufschlüsselung (in EUR)",
         "insights_title": ":material/insights: Analytische Insights",
-        "insight_breakeven": "**Break-Even Point:** Bei diesem Ticketpreis amortisiert sich jegliche Kontoführungsgebühr bereits ab dem **ersten** zahlenden US/UK-Kunden.",
+        "insight_breakeven": "**Break-Even Point:** Bei eurem Ticketpreis inkl. Setup-Gebühr amortisieren sich jegliche Kontoführungsgebühren ab dem **ersten** Neukunden sofort.",
         "insight_annual": "**Jahres-Hebel:** Auf 12 Monate hochgerechnet schützt das Setup ca. **€ {annual:,.0f}** vor der FX-Erosion.",
-        "insight_provider": "**Anbieter-Wahl:** {provider} wurde ausgewählt. Die Berechnung berücksichtigt {fees}.",
         "flow_title": ":material/account_tree: Ziel-Infrastruktur (Datenfluss)",
         "matrix_title": ":material/tune: Matrix: Welcher Anbieter passt zu uns?",
         "scen_sq": "Status Quo (Sparkasse)",
@@ -55,32 +58,39 @@ T = {
         "cat_base": "1. Basis-Gebühren (Processing)",
         "cat_fx": "2. FX- & Stripe-Payout Gebühren",
         "cat_prov": "3. Anbieter-Fixkosten",
+        "rate_base": "Grundgebühr / Monat",
+        "rate_transfer": "Lokale Überweisung (US/UK)",
+        "rate_fx": "FX-Aufschlag (Like-for-Like)"
     },
     "EN": {
         "title": ":material/account_balance: Strategic Multi-Currency Setup",
-        "subtitle": "Dashboard for simulating Stripe payment flows and optimizing FX margins.",
+        "subtitle": "Dashboard for simulating Stripe payment flows, growth scenarios and optimizing FX margins.",
         "sidebar_title": ":material/settings: Parameters",
-        "growth": "Monthly Growth",
-        "us_subs": "Number of US Subscribers",
-        "uk_subs": "Number of UK Subscribers",
+        "market_us": "🇺🇸 US Market",
+        "market_uk": "🇬🇧 UK Market",
+        "exist_subs": "Existing Customers",
+        "new_subs": "New Customers / Month",
+        "help_subs": "Regular Subscription",
+        "help_new_subs": "Incl. $2,500 one-time setup fee",
+        "help_new_subs_uk": "Incl. £2,500 one-time setup fee",
         "payout_freq": "Stripe Payout Frequency",
         "payout_help": "Since there is currently €250k in bridge capital for payroll, 'Monthly' is recommended.",
         "monthly": "Monthly (Recommended)",
         "weekly": "Weekly",
         "daily": "Daily",
-        "provider_select": "Target Provider (Multi-Currency)",
-        "rev_usd": "Revenue (USD)",
-        "rev_gbp": "Revenue (GBP)",
+        "provider_select": ":material/account_balance_wallet: Select Target Provider (Multi-Currency)",
+        "provider_rates": "Fee structure of selected provider:",
+        "rev_usd": "Total Revenue (USD)",
+        "rev_gbp": "Total Revenue (GBP)",
         "net_savings": "Net Savings (Monthly)",
         "savings_percent": "of revenue",
         "annual_savings": "Annual Savings (p.a.)",
         "base_fees": "Unavoidable Stripe Base Fees",
-        "base_fees_help": "Standard payment processing fees for international cards (approx. 3.25% + 0.30€). These always apply, regardless of the setup.",
+        "base_fees_help": "Standard payment processing (approx. 3.25% + 0.30€) for subscriptions and setup fees.",
         "chart_title": ":material/bar_chart: Cost Breakdown (in EUR)",
         "insights_title": ":material/insights: Analytical Insights",
-        "insight_breakeven": "**Break-Even Point:** With this ticket price, any account management fee pays for itself from the **first** paying US/UK customer.",
+        "insight_breakeven": "**Break-Even Point:** With your ticket price incl. setup fee, any account management fees pay for themselves immediately from the **first** new customer.",
         "insight_annual": "**Annual Leverage:** Extrapolated over 12 months, the setup protects approx. **€ {annual:,.0f}** from FX erosion.",
-        "insight_provider": "**Provider Choice:** {provider} was selected. The calculation accounts for {fees}.",
         "flow_title": ":material/account_tree: Target Infrastructure (Data Flow)",
         "matrix_title": ":material/tune: Matrix: Which provider suits us?",
         "scen_sq": "Status Quo (Local Bank)",
@@ -88,6 +98,9 @@ T = {
         "cat_base": "1. Base Fees (Processing)",
         "cat_fx": "2. FX & Stripe Payout Fees",
         "cat_prov": "3. Provider Fixed Costs",
+        "rate_base": "Base Fee / Month",
+        "rate_transfer": "Local Transfer (US/UK)",
+        "rate_fx": "FX Markup (Like-for-Like)"
     }
 }
 
@@ -97,6 +110,9 @@ def t(key):
 # --- KONSTANTEN & AKTUELLE WECHSELKURSE (März 2026) ---
 AOV_USD = 1499
 AOV_GBP = 999
+SETUP_FEE_USD = 2500
+SETUP_FEE_GBP = 2500
+
 FX_RATE_USD_EUR = 0.92  
 FX_RATE_GBP_EUR = 1.17  
 
@@ -109,9 +125,15 @@ st.divider()
 with st.sidebar:
     st.header(t("sidebar_title"))
     
-    st.subheader(t("growth"))
-    us_customers = st.number_input(t("us_subs"), min_value=0, value=15, step=1)
-    uk_customers = st.number_input(t("uk_subs"), min_value=0, value=10, step=1)
+    st.subheader(t("market_us"))
+    us_exist = st.number_input(f"{t('exist_subs')} (US)", min_value=0, value=15, step=1, help=t("help_subs"))
+    us_new = st.number_input(f"{t('new_subs')} (US)", min_value=0, value=3, step=1, help=t("help_new_subs"))
+    
+    st.subheader(t("market_uk"))
+    uk_exist = st.number_input(f"{t('exist_subs')} (UK)", min_value=0, value=10, step=1, help=t("help_subs"))
+    uk_new = st.number_input(f"{t('new_subs')} (UK)", min_value=0, value=2, step=1, help=t("help_new_subs_uk"))
+    
+    st.divider()
     
     st.subheader(t("payout_freq"))
     payout_freq = st.selectbox(
@@ -121,31 +143,49 @@ with st.sidebar:
         label_visibility="collapsed"
     )
     
-    st.subheader(t("provider_select"))
-    provider = st.selectbox(
-        t("provider_select"),
-        options=["Airwallex", "Wise Business", "Revolut Business"],
-        label_visibility="collapsed"
-    )
-    
-    # Logik für das Dropdown
     if payout_freq == t("monthly"):
         payouts_per_month = 1
     elif payout_freq == t("weekly"):
         payouts_per_month = 4
     else:
-        payouts_per_month = 20 # ca. Werktage
+        payouts_per_month = 20
+
+# --- HAUPTBEREICH: ANBIETER-AUSWAHL ---
+st.subheader(t("provider_select"))
+provider = st.selectbox(
+    "Provider",
+    options=["Airwallex", "Wise Business", "Revolut Business"],
+    label_visibility="collapsed"
+)
+
+# Anbieter-Konditionen direkt anzeigen
+if provider == "Airwallex":
+    r_base, r_trans, r_fx = "€ 0", "€ 0 (Kostenlos)", "0 %"
+elif provider == "Wise Business":
+    r_base, r_trans, r_fx = "€ 0 (Einmalig € 50)", "~ € 0.50 pro ÜW", "0 %"
+elif provider == "Revolut Business":
+    r_base, r_trans, r_fx = "€ 25 (Grow Plan)", "€ 0.20 pro ÜW", "0 %"
+
+st.caption(t("provider_rates"))
+r1, r2, r3 = st.columns(3)
+r1.info(f"**{t('rate_base')}:** {r_base}")
+r2.info(f"**{t('rate_transfer')}:** {r_trans}")
+r3.info(f"**{t('rate_fx')}:** {r_fx}")
+
+st.divider()
 
 # --- BERECHNUNGSLOGIK ---
-# 1. Volumina
-vol_usd = us_customers * AOV_USD
-vol_gbp = uk_customers * AOV_GBP
+# 1. Volumina (Abo-Bestand + Abo-Neu + Setup-Gebühr-Neu)
+total_us_customers = us_exist + us_new
+total_uk_customers = uk_exist + uk_new
+
+vol_usd = (total_us_customers * AOV_USD) + (us_new * SETUP_FEE_USD)
+vol_gbp = (total_uk_customers * AOV_GBP) + (uk_new * SETUP_FEE_GBP)
 vol_eur_total = (vol_usd * FX_RATE_USD_EUR) + (vol_gbp * FX_RATE_GBP_EUR)
 
-# 2. Unvermeidbare Basis-Gebühren (Stripe Processing: EWR -> Non-EWR Cards ca. 3.25% + 0.30€)
-# Wir nehmen einen pauschalen Mix an
-base_fee_usd_processing = (vol_usd * 0.0325) + (us_customers * 0.30)
-base_fee_gbp_processing = (vol_gbp * 0.025) + (uk_customers * 0.30) # UK etwas günstiger
+# 2. Unvermeidbare Basis-Gebühren (Stripe Processing: ca. 3.25% + 0.30€)
+base_fee_usd_processing = (vol_usd * 0.0325) + (total_us_customers * 0.30)
+base_fee_gbp_processing = (vol_gbp * 0.025) + (total_uk_customers * 0.30) 
 base_fee_eur_total = (base_fee_usd_processing * FX_RATE_USD_EUR) + (base_fee_gbp_processing * FX_RATE_GBP_EUR)
 
 # 3. Status Quo (2% Stripe Standard Konvertierung oben drauf)
@@ -153,29 +193,22 @@ fx_cost_status_quo_eur = (vol_usd * FX_RATE_USD_EUR * 0.02) + (vol_gbp * FX_RATE
 total_cost_sq_eur = base_fee_eur_total + fx_cost_status_quo_eur
 
 # 4. Neues Setup (Stripe Payout Fees auf Fremdwährungskonten)
-# USD: 1% Alt Currency + 0.25% Cross Border + $1.50 pro Auszahlung
 stripe_payout_cost_usd = (vol_usd * 0.0125) + (payouts_per_month * 1.50) if vol_usd > 0 else 0
-# GBP: 1% Alt Currency + £0.50 pro Auszahlung
 stripe_payout_cost_gbp = (vol_gbp * 0.01) + (payouts_per_month * 0.50) if vol_gbp > 0 else 0
 
-# 5. Anbieter-spezifische Kosten (Neu!)
-# Annahme: 1 Sammelüberweisung pro Monat an US Freelancer, 1 an UK Tochterfirma
+# 5. Anbieter-spezifische Kosten
 provider_monthly_fee_eur = 0
 provider_transfer_fee_eur = 0
-prov_desc = ""
 
 if provider == "Airwallex":
     provider_monthly_fee_eur = 0
-    provider_transfer_fee_eur = 0 # Lokale Überweisungen sind kostenlos
-    prov_desc = "0€ Basisgebühr & 0€ lokale Überweisungsgebühren" if lang == "DE" else "€0 base fee & €0 local transfer fees"
+    provider_transfer_fee_eur = 0 
 elif provider == "Wise Business":
-    provider_monthly_fee_eur = 0 # (Ignorieren einmalige 50€ Setup)
-    provider_transfer_fee_eur = (1 * 0.50 * FX_RATE_USD_EUR) + (1 * 0.50 * FX_RATE_GBP_EUR) # ca. 50 Cent pro lokaler ÜW
-    prov_desc = "0€ Basisgebühr & minimale Transaktionsgebühren (~0.50€)" if lang == "DE" else "€0 base fee & minimal transaction fees (~€0.50)"
+    provider_monthly_fee_eur = 0 
+    provider_transfer_fee_eur = (1 * 0.50 * FX_RATE_USD_EUR) + (1 * 0.50 * FX_RATE_GBP_EUR) 
 elif provider == "Revolut Business":
-    provider_monthly_fee_eur = 25 # Grow Plan für sinnvolle Freibeträge
-    provider_transfer_fee_eur = 2 * 0.20 # ca. 20 Cent nach Freibetrag
-    prov_desc = "25€ monatliche Fixkosten & 0.20€ Transaktionsgebühren" if lang == "DE" else "€25 monthly fixed cost & €0.20 transaction fees"
+    provider_monthly_fee_eur = 25 
+    provider_transfer_fee_eur = 2 * 0.20 
 
 fx_cost_new_eur = (stripe_payout_cost_usd * FX_RATE_USD_EUR) + (stripe_payout_cost_gbp * FX_RATE_GBP_EUR)
 total_cost_new_eur = base_fee_eur_total + fx_cost_new_eur + provider_monthly_fee_eur + provider_transfer_fee_eur
@@ -185,8 +218,7 @@ savings_eur = total_cost_sq_eur - total_cost_new_eur
 savings_percent = (savings_eur / vol_eur_total * 100) if vol_eur_total > 0 else 0
 annual_savings = savings_eur * 12
 
-# --- MAIN DASHBOARD ---
-# 1. KPIs
+# --- DASHBOARD KPIs ---
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -206,17 +238,15 @@ with col4:
         delta="12 Months ROI"
     )
 
-# Hinweis zu Basisgebühren
 st.caption(f"ℹ️ **{t('base_fees')}: € {base_fee_eur_total:,.0f}**. {t('base_fees_help')}")
 st.divider()
 
-# 2. VISUALISIERUNG & BREAK-EVEN
+# --- VISUALISIERUNG & BREAK-EVEN ---
 col_chart, col_info = st.columns([2, 1])
 
 with col_chart:
     st.subheader(t("chart_title"))
     
-    # Daten für gestapeltes Diagramm
     chart_data = pd.DataFrame([
         {"Szenario": t("scen_sq"), "Kostenart": t("cat_base"), "Betrag": base_fee_eur_total},
         {"Szenario": t("scen_sq"), "Kostenart": t("cat_fx"), "Betrag": fx_cost_status_quo_eur},
@@ -227,9 +257,8 @@ with col_chart:
         {"Szenario": t("scen_new").format(provider=provider), "Kostenart": t("cat_prov"), "Betrag": provider_monthly_fee_eur + provider_transfer_fee_eur},
     ])
     
-    # Altair Gestapeltes Balkendiagramm
     domain = [t("cat_base"), t("cat_fx"), t("cat_prov")]
-    range_ = ['#94a3b8', '#ef4444', '#f59e0b'] # Grau (Basis), Rot (FX/Verlust), Orange (Provider)
+    range_ = ['#94a3b8', '#ef4444', '#f59e0b'] 
     
     chart = alt.Chart(chart_data).mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
         x=alt.X("Szenario:N", axis=alt.Axis(labelAngle=0, title="")),
@@ -244,12 +273,11 @@ with col_chart:
 with col_info:
     st.subheader(t("insights_title"))
     st.success(t("insight_annual").format(annual=annual_savings))
-    st.info(t("insight_provider").format(provider=provider, fees=prov_desc))
     st.info(t("insight_breakeven"))
 
 st.divider()
 
-# 3. ARCHITEKTUR / WORKFLOW
+# --- ARCHITEKTUR / WORKFLOW ---
 st.subheader(t("flow_title"))
 
 mermaid_html = """
@@ -270,9 +298,8 @@ graph LR
 """
 st.components.v1.html(mermaid_html, height=250)
 
-# 4. ANBIETER MATRIX
+# --- ANBIETER MATRIX ---
 with st.expander(t("matrix_title"), expanded=True):
-    # Einfache statische Matrix, bei Bedarf auch ins Dictionary auslagerbar
     matrix_data = {
         "Kriterium / Criterion": ["Empfang USD (aus Stripe)", "UK FPS Überweisung", "DATEV-Anbindung", "Mitarbeiterkarten"],
         "Airwallex": ["Kostenlos (Echte US-Routing-Nr.)", "Kostenlos", "Nativ integriert", "Kostenlos + Cashback"],
